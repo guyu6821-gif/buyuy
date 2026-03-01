@@ -6,7 +6,7 @@
 ## 🌐 URL-lər
 - **Sandbox Test URL**: https://3000-i2ebzaym400x0dmbepa2t-2e77fc33.sandbox.novita.ai
 - **GitHub**: https://github.com/guyu6821-gif/buyuy
-- **Production**: (Cloudflare API key lazımdır - Deploy tab-da konfiqurasiya edin)
+- **Render.com**: Deploy üçün hazır (static-site qovluğu)
 
 ## ✨ Xüsusiyyətlər
 
@@ -153,17 +153,26 @@
 
 ```
 webapp/
+├── static-site/           # Render.com üçün static fayllar (HAZIR!)
+│   ├── index.html        # Ana səhifə
+│   ├── app.js            # JavaScript
+│   ├── styles.css        # CSS
+│   ├── sw.js            # Service Worker
+│   ├── manifest.json    # PWA manifest
+│   ├── icon-192.png     # İkon
+│   ├── icon-512.png     # İkon
+│   └── README.md        # Deploy təlimatı
 ├── src/
-│   └── index.tsx          # Hono backend + HTML
+│   └── index.tsx         # Hono backend + HTML (development)
 ├── public/
 │   ├── static/
-│   │   ├── app.js        # JavaScript funksionallığı
-│   │   └── styles.css    # CSS stilləri
-│   ├── manifest.json     # PWA manifest
-│   ├── sw.js            # Service Worker
-│   ├── icon-192.png     # 192x192 ikon
-│   └── icon-512.png     # 512x512 ikon
-├── dist/                # Build output
+│   │   ├── app.js       # JavaScript funksionallığı
+│   │   └── styles.css   # CSS stilləri
+│   ├── manifest.json    # PWA manifest
+│   ├── sw.js           # Service Worker
+│   ├── icon-192.png    # 192x192 ikon
+│   └── icon-512.png    # 512x512 ikon
+├── dist/                # Build output (Vite)
 ├── ecosystem.config.cjs # PM2 konfiqurasiyası
 ├── package.json
 ├── vite.config.ts
@@ -173,11 +182,19 @@ webapp/
 
 ## 🔧 Development
 
-### Lokal İşə Salma
+### Lokal İşə Salma (Hono + Vite)
 ```bash
 cd /home/user/webapp
 npm run build
 pm2 start ecosystem.config.cjs
+```
+
+### Static Site (Render.com üçün)
+```bash
+cd /home/user/webapp/static-site
+python3 -m http.server 8080
+# və ya
+npx serve .
 ```
 
 ### Test
@@ -186,35 +203,41 @@ curl http://localhost:3000
 pm2 logs --nostream
 ```
 
-### Deploy (Cloudflare Pages)
-```bash
-# Setup Cloudflare API key first
-# Call setup_cloudflare_api_key tool
+### Deploy (Render.com Static Site)
+1. GitHub repository-ni Render-ə bağlayın
+2. Root Directory: `static-site`
+3. Build Command: (boş buraxın)
+4. Publish Directory: `.`
+5. Deploy edin
 
-# Deploy
-npm run deploy:prod
-```
+Ətraflı təlimat üçün: `static-site/README.md`
 
 ## 📋 Deployment Status
 
 - ✅ **Sandbox**: Aktiv (PM2 ilə işləyir) - https://3000-i2ebzaym400x0dmbepa2t-2e77fc33.sandbox.novita.ai
 - ✅ **GitHub**: Push edilib - https://github.com/guyu6821-gif/buyuy
-- ⏳ **Cloudflare Pages**: Deploy üçün API key lazımdır (Deploy tab-da setup edin)
+- ✅ **Static Site**: Render.com üçün hazır (`static-site/` qovluğu)
+- ⏳ **Render.com**: Deploy üçün GitHub repository-ni Render-ə bağlayın
 
 ## 🔄 Növbəti Addımlar
 
-1. **GitHub Push**
-   - `setup_github_environment` tool-u çağır
-   - Repository seç və ya yarat
-   - Kodu push et
+1. **Render.com Deploy**
+   - Render Dashboard-a gedin: https://dashboard.render.com
+   - "New +" > "Static Site" seçin
+   - GitHub repository seçin: `guyu6821-gif/buyuy`
+   - Root Directory: `static-site`
+   - Build Command: (boş buraxın)
+   - Publish Directory: `.`
+   - "Create Static Site" düyməsinə basın
 
-2. **Cloudflare Pages Deploy**
-   - `setup_cloudflare_api_key` tool-u çağır
-   - `meta_info` ilə project name idarə et
-   - Production-a deploy et
+2. **Custom Domain** (isteğe bağlı)
+   - Render Dashboard > Settings > Custom Domain
+   - Öz domain-inizi əlavə edin
 
-3. **Custom Domain** (isteğe bağlı)
-   - Cloudflare Pages-də custom domain əlavə et
+3. **Dəyişiklik Etdikdə**
+   - `static-site/` qovluğunda faylları dəyişin
+   - Git commit və push edin
+   - Render avtomatik yenidən deploy edəcək
 
 ## 📝 Qeydlər
 
