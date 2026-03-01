@@ -5,8 +5,8 @@
 
 ## 🌐 URL-lər
 - **Sandbox Test URL**: https://3000-i2ebzaym400x0dmbepa2t-2e77fc33.sandbox.novita.ai
-- **GitHub**: (push ediləcək)
-- **Production**: (Cloudflare Pages-də deploy ediləcək)
+- **GitHub**: https://github.com/guyu6821-gif/buyuy
+- **Production**: (Cloudflare API key lazımdır - Deploy tab-da konfiqurasiya edin)
 
 ## ✨ Xüsusiyyətlər
 
@@ -197,9 +197,9 @@ npm run deploy:prod
 
 ## 📋 Deployment Status
 
-- ✅ **Sandbox**: Aktiv (PM2 ilə işləyir)
-- ⏳ **GitHub**: Push edilməyib (setup_github_environment lazımdır)
-- ⏳ **Cloudflare Pages**: Deploy edilməyib (setup_cloudflare_api_key lazımdır)
+- ✅ **Sandbox**: Aktiv (PM2 ilə işləyir) - https://3000-i2ebzaym400x0dmbepa2t-2e77fc33.sandbox.novita.ai
+- ✅ **GitHub**: Push edilib - https://github.com/guyu6821-gif/buyuy
+- ⏳ **Cloudflare Pages**: Deploy üçün API key lazımdır (Deploy tab-da setup edin)
 
 ## 🔄 Növbəti Addımlar
 
