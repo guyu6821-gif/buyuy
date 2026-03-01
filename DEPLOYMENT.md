@@ -1,188 +1,312 @@
 # Deployment Guide - BDU Tələbə Köməkçisi
 
-## 🚀 Cloudflare Pages-ə Deploy Etmə
+## 🚀 Render.com Static Site Deploy
 
-### Addım 1: Cloudflare API Key Konfiqurasiyası
+### Addım 1: Render.com Hesab Yaradın
 
-1. **Deploy Tab-a keçin**
-   - Sidebar-da "Deploy" tab-ına klikləyin
+1. **Render.com-a gedin**: https://render.com
+2. **Sign Up** düyməsinə basın
+3. GitHub hesabınızla giriş edin (tövsiyə olunur)
 
-2. **Cloudflare API Token yaradın**
-   - Cloudflare Dashboard-a gedin: https://dash.cloudflare.com/
-   - Profile > API Tokens
-   - "Create Token" düyməsinə basın
-   - "Edit Cloudflare Workers" şablonunu seçin
-   - Token-u kopyalayın
+### Addım 2: GitHub Repository Bağlantısı
 
-3. **API Key-i əlavə edin**
-   - Deploy tab-da API Key sahəsinə token-u yapışdırın
-   - "Save" düyməsinə basın
+Render.com avtomatik olaraq GitHub hesabınıza çıxış istəyəcək.
 
-### Addım 2: Cloudflare API Key Environment Setup
+### Addım 3: Static Site Yaradın
 
-Sandbox-da bu komutu işlədin:
-```bash
-# Bu tool API key-i environment variable olaraq konfiqurasiya edəcək
-setup_cloudflare_api_key
+1. **Render Dashboard-a gedin**: https://dashboard.render.com
+2. **"New +"** düyməsinə basın
+3. **"Static Site"** seçin
+4. Repository seçin: **`guyu6821-gif/buyuy`**
+
+### Addım 4: Build Settings Konfiqurasiyası
+
+```
+Name: bdu-helper
+Branch: main
+Root Directory: static-site
+Build Command: (boş buraxın - static fayllar hazırdır)
+Publish Directory: .
+Auto-Deploy: Yes
 ```
 
-### Addım 3: Cloudflare Pages Project Yaradın
+### Addım 5: Deploy Edin
+
+1. **"Create Static Site"** düyməsinə basın
+2. Render avtomatik deploy prosesini başladacaq
+3. 1-2 dəqiqədə deploy tamamlanacaq
+
+### Addım 6: URL-i Əldə Edin
+
+Deploy tamamlandıqdan sonra sizə URL veriləcək:
+- **Production URL**: `https://bdu-helper.onrender.com` və ya
+- **Random URL**: `https://bdu-helper-xxxx.onrender.com`
+
+## ✅ Deploy Sonrası Yoxlama
+
+### PWA Funksionallığı Test Edin
+
+1. **Browser-də açın**: Verilən Render URL-i açın
+2. **Install düyməsi**: "Tətbiqi Quraşdır" düyməsi görünməlidir
+3. **Offline test**: 
+   - DevTools açın (F12)
+   - Application > Service Workers
+   - Service Worker-in "activated" statusunda olduğunu yoxlayın
+   - Network > Offline checkbox-u aktivləşdirin
+   - Səhifəni yeniləyin - işləməlidir
+
+4. **Ana ekrana əlavə**:
+   - Desktop Chrome: Address bar-da Install (+) ikonu
+   - Mobile Chrome: Menu > "Add to Home screen"
+   - iOS Safari: Share > "Add to Home Screen"
+
+### Funksionallıq Testi
+
+- ✅ Semestr balı hesablama
+- ✅ ÜOMG hesablama
+- ✅ Kəsr pulu hesablama
+- ✅ Yaş hesablayıcı
+- ✅ Lüğət və məlumat bölmələri
+- ✅ Sürətli linklər
+- ✅ WhatsApp əlaqə düyməsi
+- ✅ "O, boşluq yaradır" info məlumatı
+
+## 🔄 Yenidən Deploy (Dəyişiklik Etdikdə)
+
+### Variant 1: Hono Backend Dəyişiklikləri
+
+Əgər Hono backend-də (src/index.tsx) dəyişiklik edirsinizsə:
 
 ```bash
 cd /home/user/webapp
 
-# Wrangler authentication-u yoxlayın
-npx wrangler whoami
-
-# Cloudflare Pages project yaradın (main branch ilə)
-npx wrangler pages project create webapp \
-  --production-branch main \
-  --compatibility-date 2026-03-01
-```
-
-### Addım 4: Deploy Edin
-
-```bash
-# Build edin
+# Server-i işə salın (əgər işə salınmayıbsa)
 npm run build
+pm2 start ecosystem.config.cjs
 
-# Deploy edin
-npx wrangler pages deploy dist --project-name webapp
-```
+# Yeni HTML-i extract edin
+curl -s http://localhost:3000 > static-site/index.html
 
-### Addım 5: Nəticəni Yoxlayın
+# URL-ləri düzəldin
+cd static-site
+sed -i 's|/static/styles.css|/styles.css|g' index.html
+sed -i 's|/static/app.js|/app.js|g' index.html
 
-Deploy uğurlu olarsa, iki URL alacaqsınız:
-- **Production**: `https://random-id.webapp.pages.dev`
-- **Branch**: `https://main.webapp.pages.dev`
-
-### Addım 6: Meta Info-nu Yeniləyin
-
-```bash
-# Final project name-i meta_info-ya yazın
-meta_info(action="write", key="cloudflare_project_name", value="webapp")
-```
-
-## 🔄 Yenidən Deploy Etmə
-
-Dəyişikliklər etdikdən sonra:
-
-```bash
+# Git commit və push
 cd /home/user/webapp
-
-# Dəyişiklikləri commit edin
 git add .
-git commit -m "Description of changes"
+git commit -m "Update static site"
 git push origin main
-
-# Build və deploy
-npm run build
-npx wrangler pages deploy dist --project-name webapp
 ```
 
-## 🌐 Custom Domain Əlavə Etmə (İsteğe bağlı)
+### Variant 2: Static Fayllar Dəyişiklikləri
+
+Əgər yalnız `static-site/` qovluğunda dəyişiklik edirsinizsə:
 
 ```bash
-# Custom domain əlavə edin
-npx wrangler pages domain add yourdomain.com --project-name webapp
+cd /home/user/webapp
 
-# DNS qeydlərini konfiqurasiya edin (Cloudflare Dashboard-dan)
+# Dəyişiklik edin (məsələn: app.js, styles.css)
+# ... faylları redaktə edin ...
+
+# Git commit və push
+git add static-site/
+git commit -m "Update static files"
+git push origin main
 ```
 
-## 🔐 Environment Variables (Lazım olarsa)
+Render avtomatik yenidən deploy edəcək (Auto-Deploy aktiv olduğu üçün).
 
-```bash
-# Secret əlavə edin
-npx wrangler pages secret put SECRET_NAME --project-name webapp
+## 🌐 Custom Domain Əlavə Etmə
 
-# Secret-ləri siyahıya alın
-npx wrangler pages secret list --project-name webapp
+### Addım 1: Render Dashboard-da Domain Əlavə Edin
+
+1. Render Dashboard > Static Site seçin
+2. **Settings** tab-ına keçin
+3. **Custom Domain** bölməsində **"Add Custom Domain"** düyməsinə basın
+4. Domain adınızı daxil edin (məsələn: `bduhelper.com`)
+
+### Addım 2: DNS Qeydlərini Konfiqurasiya Edin
+
+Render sizə DNS qeydləri verəcək:
+
+```
+Type: CNAME
+Name: www (və ya @)
+Value: bdu-helper.onrender.com
 ```
 
-## 📊 Monitoring
+Domain registrar-ınızda (Namecheap, GoDaddy, və s.) bu qeydləri əlavə edin.
 
-```bash
-# Deployment-ləri yoxlayın
-npx wrangler pages deployments list --project-name webapp
+### Addım 3: SSL Sertifikatı
 
-# Logs-ları yoxlayın
-npx wrangler pages deployment tail
-```
+Render avtomatik SSL sertifikatı təmin edir (Let's Encrypt).
+DNS yayıldıqdan sonra (15-30 dəqiqə) HTTPS avtomatik aktivləşəcək.
+
+## 📊 Monitoring və Logs
+
+### Render Dashboard-da Logs
+
+1. Render Dashboard > Static Site seçin
+2. **Logs** tab-ına keçin
+3. Real-time deploy və server loglarını görəcəksiniz
+
+### Deploy History
+
+1. **Deploy** tab-ında bütün deploy tarixçəsini görə bilərsiniz
+2. Əvvəlki deploy-lara rollback edə bilərsiniz
 
 ## 🐛 Troubleshooting
 
-### Problem: "Authentication failed"
-**Həll**: 
-```bash
-setup_cloudflare_api_key
-npx wrangler whoami
-```
+### Problem: Deploy uğursuz olur
 
-### Problem: "Project already exists"
-**Həll**: 
-```bash
-# meta_info-dan oxuyun və mövcud project name-i istifadə edin
-meta_info(action="read", key="cloudflare_project_name")
-
-# Və ya rəqəm əlavə edin: webapp-2, webapp-3
-npx wrangler pages deploy dist --project-name webapp-2
-```
-
-### Problem: "Build failed"
 **Həll**:
+1. Render logs-u yoxlayın
+2. `static-site/` qovluğunun mövcud olduğunu yoxlayın
+3. Root Directory düzgün konfiqurasiya edildiyini yoxlayın
+
 ```bash
-# node_modules-u təmizləyin və yenidən install edin
-rm -rf node_modules package-lock.json
-npm install
-npm run build
+# Lokal test
+cd /home/user/webapp/static-site
+python3 -m http.server 8080
+# http://localhost:8080 açın
 ```
 
-### Problem: "Service Worker not working"
+### Problem: PWA quraşdırılmır
+
 **Həll**:
-- Browser cache-ni təmizləyin (Ctrl+Shift+Delete)
-- Hard refresh edin (Ctrl+Shift+R)
-- Service Worker-i unregister edin:
-  - DevTools > Application > Service Workers > Unregister
+1. HTTPS aktiv olduğunu yoxlayın (Render avtomatik HTTPS verir)
+2. manifest.json faylının düzgün yükləndiğini yoxlayın
+3. Service Worker error-u yoxlayın (F12 > Console)
 
-## 📱 PWA Test
+```bash
+# manifest.json yoxla
+curl https://your-site.onrender.com/manifest.json
 
-### Desktop (Chrome/Edge)
-1. Saytı açın
+# Service Worker yoxla
+curl https://your-site.onrender.com/sw.js
+```
+
+### Problem: Static fayllar yüklənmir (404)
+
+**Həll**:
+1. Fayl path-larını yoxlayın (`index.html`-də)
+2. Publish Directory-nin `.` olduğunu yoxlayın
+
+```bash
+# Faylların olduğunu yoxlayın
+cd /home/user/webapp/static-site
+ls -la
+```
+
+### Problem: Service Worker cache problemi
+
+**Həll**:
+1. Browser cache-ni təmizləyin (Ctrl+Shift+Delete)
+2. Hard refresh edin (Ctrl+Shift+R)
+3. Service Worker-i unregister edin:
+   - F12 > Application > Service Workers > Unregister
+   - Səhifəni yeniləyin
+
+### Problem: Dəyişikliklər görünmür
+
+**Həll**:
+1. Service Worker cache version-u yoxlayın (`sw.js`-də)
+2. Cache version-u artırın:
+
+```javascript
+// sw.js
+const CACHE_VERSION = 'v1.0.1'; // v1.0.0-dan v1.0.1-ə dəyişin
+```
+
+3. Git commit və push edin
+
+## 🎯 Performance Optimization
+
+### CDN və Caching
+
+Render avtomatik:
+- ✅ Global CDN təmin edir
+- ✅ Gzip compression
+- ✅ HTTP/2 support
+- ✅ Auto SSL/TLS
+
+### PWA Caching Strategy
+
+Service Worker bu faylları cache edir:
+- Ana səhifə (`/`)
+- JavaScript (`/app.js`)
+- CSS (`/styles.css`)
+- PWA faylları (`manifest.json`, ikonlar)
+- Service Worker özü (`/sw.js`)
+- External CDN-lər (Tailwind, FontAwesome)
+
+### Lighthouse Score
+
+Test edin:
+1. Chrome DevTools > Lighthouse
+2. "Generate report" düyməsinə basın
+3. PWA kriteriyalarını yoxlayın
+
+Gözlənilən nəticələr:
+- Performance: 90+
+- Accessibility: 90+
+- Best Practices: 90+
+- SEO: 80+
+- PWA: ✅ Installable
+
+## 📱 Mobile Testing
+
+### Android Chrome
+
+1. URL açın
+2. Menu (⋮) > "Add to Home screen"
+3. Tətbiqi ana ekrandan açın
+4. Offline mode test edin (uçuş rejimi)
+
+### iOS Safari
+
+1. URL açın
+2. Share düyməsinə basın (aşağıda)
+3. "Add to Home Screen" seçin
+4. Tətbiqi ana ekrandan açın
+5. Offline mode test edin (uçuş rejimi)
+
+### Desktop Chrome/Edge
+
+1. URL açın
 2. Address bar-da Install (+) ikonuna basın
 3. "Install" düyməsinə basın
+4. Tətbiq ayrı pəncərədə açılacaq
 
-### Mobile (Chrome Android)
-1. Saytı açın
-2. Menu (⋮) > "Add to Home screen"
-3. "Add" düyməsinə basın
+## 📞 Dəstək və Yardım
 
-### iOS (Safari)
-1. Saytı açın
-2. Share düyməsinə basın
-3. "Add to Home Screen" seçin
+### Render.com Dokumentasiyası
 
-## 🎯 Performance Tips
+- Static Sites: https://render.com/docs/static-sites
+- Custom Domains: https://render.com/docs/custom-domains
+- Deploy Hooks: https://render.com/docs/deploy-hooks
 
-1. **CDN Optimization**
-   - Tailwind CSS və FontAwesome CDN-dən yüklənir
-   - Cloudflare Pages avtomatik CDN təmin edir
-
-2. **Cache Strategy**
-   - Service Worker bütün static asset-ləri cache edir
-   - Version-based cache invalidation
-
-3. **Size Optimization**
-   - Bütün kod minified olur (Vite)
-   - Gzip compression avtomatik
-
-## 📞 Yardım
+### Layihə Dəstəyi
 
 Problem yaşayırsınızsa:
-1. README.md faylını oxuyun
-2. PM2 logs yoxlayın: `pm2 logs --nostream`
-3. Browser console yoxlayın (F12)
-4. Cloudflare Dashboard-da logs yoxlayın
+1. GitHub Issues: https://github.com/guyu6821-gif/buyuy/issues
+2. README.md faylını oxuyun
+3. `static-site/README.md` faylını yoxlayın
+
+## 🎉 Uğurlar!
+
+Deploy prosesi tamamlandı! Tətbiqiniz indi:
+- ✅ Global CDN üzərində
+- ✅ HTTPS ilə təhlükəsiz
+- ✅ PWA kimi quraşdırıla bilər
+- ✅ Offline işləyir
+- ✅ Mobil və desktop-da işləyir
+
+**Production URL-i paylaşın və istifadə edin! 🚀**
 
 ---
 
-**Müvəffəqiyyətlər! 🚀**
+**Hazırlanıb**: BDU tələbələri üçün  
+**Sayt Sahibi**: [@desespere_etoile](https://www.instagram.com/desespere_etoile)  
+**WhatsApp**: +994559406018
